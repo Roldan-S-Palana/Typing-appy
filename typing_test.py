@@ -12,15 +12,15 @@ class TypingTestApp:
 
         # Default theme
         self.current_theme = {
-            'bg': '#f0f0f0',
-            'fg': '#000000',
+            'bg': '#f8f9fa',
+            'fg': '#212529',
             'text_bg': '#ffffff',
-            'text_fg': '#000000',
-            'button_bg': '#e0e0e0',
-            'button_fg': '#000000',
-            'error_color': '#ff0000',
-            'correct_color': '#00aa00',
-            'font': ('Arial', 12)
+            'text_fg': '#495057',
+            'button_bg': '#007bff',
+            'button_fg': '#ffffff',
+            'error_color': '#dc3545',
+            'correct_color': '#28a745',
+            'font': ('Segoe UI', 12)
         }
 
         # Load themes if available
@@ -45,6 +45,11 @@ class TypingTestApp:
 
         self.setup_ui()
 
+        self.input_entry.focus()
+
+        # Initialize with basic difficulty text
+        self.reset_sample_text()
+
     def setup_ui(self):
         # Menu bar
         self.menubar = tk.Menu(self.root)
@@ -64,14 +69,14 @@ class TypingTestApp:
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Text display with colored text
-        self.text_frame = tk.Frame(self.main_frame, bg=self.current_theme['text_bg'])
-        self.text_frame.pack(pady=20, padx=20, fill=tk.X)
+        self.text_frame = tk.Frame(self.main_frame, bg=self.current_theme['text_bg'], bd=2, relief='groove')
+        self.text_frame.pack(pady=25, padx=25, fill=tk.X)
 
         # Create text widget for multi-line display with scrolling
-        self.text_widget = tk.Text(self.text_frame, wrap=tk.WORD, font=('Arial', 14),
-                                 bg=self.current_theme['text_bg'], fg=self.current_theme['text_fg'],
-                                 bd=0, highlightthickness=0, padx=10, pady=10, spacing1=0, spacing2=0, spacing3=0,
-                                 height=8)  # Increased height for better visibility
+        self.text_widget = tk.Text(self.text_frame, wrap=tk.WORD, font=('Segoe UI', 16),
+                                  bg=self.current_theme['text_bg'], fg=self.current_theme['text_fg'],
+                                  bd=2, highlightthickness=1, relief='sunken', padx=15, pady=15, spacing1=2, spacing2=2, spacing3=2,
+                                  height=4)  # Further reduced height for more compact display
         self.scrollbar = tk.Scrollbar(self.text_frame, command=self.text_widget.yview)
         self.text_widget.config(yscrollcommand=self.scrollbar.set)
 
@@ -82,69 +87,75 @@ class TypingTestApp:
         self.update_colored_text()
 
         # Input field
-        self.input_entry = tk.Entry(self.main_frame, textvariable=self.user_input, font=self.current_theme['font'],
-                                    bg=self.current_theme['text_bg'], fg=self.current_theme['text_fg'])
-        self.input_entry.pack(fill=tk.X, padx=20, pady=10)
+        self.input_entry = tk.Entry(self.main_frame, textvariable=self.user_input, font=('Segoe UI', 14),
+                                     bg=self.current_theme['text_bg'], fg=self.current_theme['text_fg'],
+                                     bd=2, relief='sunken', insertwidth=2)
+        self.input_entry.pack(fill=tk.X, padx=30, pady=15)
         self.input_entry.bind('<KeyRelease>', self.check_input)
-        self.input_entry.bind('<Tab>', self.reset_sample_text)
+        self.input_entry.bind('<Tab>', self.restart_test)
 
         # Stats frame (initially hidden)
-        self.stats_frame = tk.Frame(self.main_frame, bg=self.current_theme['bg'])
+        self.stats_frame = tk.Frame(self.main_frame, bg=self.current_theme['bg'], bd=1, relief='solid')
 
         self.wpm_label = tk.Label(self.stats_frame, text="", bg=self.current_theme['bg'], fg=self.current_theme['fg'],
-                                  font=self.current_theme['font'])
+                                   font=('Segoe UI', 14, 'bold'))
 
         self.accuracy_label = tk.Label(self.stats_frame, text="", bg=self.current_theme['bg'], fg=self.current_theme['fg'],
-                                       font=self.current_theme['font'])
+                                        font=('Segoe UI', 14, 'bold'))
 
         # Buttons
         self.button_frame = tk.Frame(self.main_frame, bg=self.current_theme['bg'])
-        self.button_frame.pack(pady=20)
+        self.button_frame.pack(pady=25)
 
-        self.start_button = tk.Button(self.button_frame, text="Start", command=self.start_test,
-                                      bg=self.current_theme['button_bg'], fg=self.current_theme['button_fg'],
-                                      font=self.current_theme['font'])
-        self.start_button.pack(side=tk.LEFT, padx=10)
+        self.start_button = tk.Button(self.button_frame, text="Start Test", command=self.start_test,
+                                       bg=self.current_theme['button_bg'], fg=self.current_theme['button_fg'],
+                                       font=('Segoe UI', 12, 'bold'), relief='raised', bd=2, padx=20, pady=8)
+        self.start_button.pack(side=tk.LEFT, padx=15)
 
         self.reset_button = tk.Button(self.button_frame, text="Reset", command=self.reset_test,
-                                      bg=self.current_theme['button_bg'], fg=self.current_theme['button_fg'],
-                                      font=self.current_theme['font'])
-        self.reset_button.pack(side=tk.LEFT, padx=10)
+                                       bg=self.current_theme['button_bg'], fg=self.current_theme['button_fg'],
+                                       font=('Segoe UI', 12, 'bold'), relief='raised', bd=2, padx=20, pady=8)
+        self.reset_button.pack(side=tk.LEFT, padx=15)
 
         # Difficulty and Duration selectors
         options_frame = tk.Frame(self.main_frame, bg=self.current_theme['bg'])
-        options_frame.pack(pady=5)
+        options_frame.pack(pady=15)
 
         # Difficulty selector
-        difficulty_frame = tk.Frame(options_frame, bg=self.current_theme['bg'])
-        difficulty_frame.pack(side=tk.LEFT, padx=10)
+        difficulty_frame = tk.Frame(options_frame, bg=self.current_theme['bg'], bd=1, relief='ridge')
+        difficulty_frame.pack(side=tk.LEFT, padx=15)
 
         tk.Label(difficulty_frame, text="Difficulty:", bg=self.current_theme['bg'], fg=self.current_theme['fg'],
-                 font=self.current_theme['font']).pack(side=tk.TOP, padx=5)
+                  font=('Segoe UI', 11, 'bold')).pack(side=tk.TOP, padx=8, pady=5)
 
         self.difficulty_var = tk.StringVar(value="Basic")
         difficulty_combo = ttk.Combobox(difficulty_frame, textvariable=self.difficulty_var,
-                                        values=["Basic", "Intermediate", "Advanced"], state="readonly", width=12)
-        difficulty_combo.pack(side=tk.TOP, padx=5)
+                                         values=["Basic", "Intermediate", "Advanced"], state="readonly", width=14,
+                                         font=('Segoe UI', 10))
+        difficulty_combo.pack(side=tk.TOP, padx=8, pady=5)
         difficulty_combo.bind('<<ComboboxSelected>>', self.change_difficulty)
 
         # Duration selector
-        duration_frame = tk.Frame(options_frame, bg=self.current_theme['bg'])
-        duration_frame.pack(side=tk.LEFT, padx=10)
+        duration_frame = tk.Frame(options_frame, bg=self.current_theme['bg'], bd=1, relief='ridge')
+        duration_frame.pack(side=tk.LEFT, padx=15)
 
         tk.Label(duration_frame, text="Duration:", bg=self.current_theme['bg'], fg=self.current_theme['fg'],
-                 font=self.current_theme['font']).pack(side=tk.TOP, padx=5)
+                  font=('Segoe UI', 11, 'bold')).pack(side=tk.TOP, padx=8, pady=5)
 
         self.duration_var = tk.StringVar(value="1 min")
         duration_combo = ttk.Combobox(duration_frame, textvariable=self.duration_var,
-                                      values=["30 sec", "1 min", "2 min", "3 min", "5 min"], state="readonly", width=8)
-        duration_combo.pack(side=tk.TOP, padx=5)
+                                       values=["30 sec", "1 min", "2 min", "3 min", "5 min"], state="readonly", width=10,
+                                       font=('Segoe UI', 10))
+        duration_combo.pack(side=tk.TOP, padx=8, pady=5)
         duration_combo.bind('<<ComboboxSelected>>', self.change_duration)
+
+        # Force update to ensure widgets are visible
+        self.root.update_idletasks()
 
         # Countdown/Timer label
         self.timer_label = tk.Label(self.main_frame, text="Ready to start!", bg=self.current_theme['bg'], fg=self.current_theme['fg'],
-                                    font=('Arial', 16, 'bold'))
-        self.timer_label.pack(pady=10)
+                                     font=('Segoe UI', 18, 'bold'))
+        self.timer_label.pack(pady=15)
 
     def load_themes(self):
         themes_file = 'themes.json'
@@ -276,15 +287,16 @@ class TypingTestApp:
 
         # Configure tags for coloring with more visible styling
         self.text_widget.tag_configure("correct",
-                                     foreground=self.current_theme.get('correct_color', '#00aa00'),
-                                     background='#e8f5e8',  # Light green background
-                                     underline=True)
+                                      foreground=self.current_theme.get('correct_color', '#28a745'),
+                                      background='#d4edda',  # Light green background
+                                      font=('Segoe UI', 16, 'bold'))
         self.text_widget.tag_configure("error",
-                                     foreground=self.current_theme.get('error_color', '#ff0000'),
-                                     background='#ffeaea',  # Light red background
-                                     underline=True)
+                                      foreground=self.current_theme.get('error_color', '#dc3545'),
+                                      background='#f8d7da',  # Light red background
+                                      font=('Segoe UI', 16, 'bold'), overstrike=True)
         self.text_widget.tag_configure("normal",
-                                     foreground=self.current_theme['text_fg'])
+                                      foreground=self.current_theme['text_fg'],
+                                      font=('Segoe UI', 16))
 
         # Insert text with appropriate tags
         for i, char in enumerate(sample_text):
@@ -356,7 +368,8 @@ class TypingTestApp:
         self.update_colored_text()
 
         # Check if user has completed the entire text
-        if len(user_text) >= len(self.sample_text):
+        # Only end test if timer is running (user actually started typing)
+        if len(user_text) >= len(self.sample_text) and self.timer_running:
             # Add final text stats to totals
             self.add_current_text_to_totals()
             self.end_test()
@@ -402,6 +415,11 @@ class TypingTestApp:
                 self.test_completed = True
                 messagebox.showinfo("Test Complete", f"Final Results:\nWPM: {self.wpm}\nAccuracy: {self.accuracy}%\nTotal words typed: {self.total_words_typed}")
 
+                # Prepare for next test: shuffle text and re-enable input
+                self.reset_sample_text(shuffle=True)
+                self.input_entry.config(state='normal')
+                self.test_completed = False
+
     def change_difficulty(self, event=None):
         difficulty_map = {"Basic": 0, "Intermediate": 1, "Advanced": 2}
         self.difficulty = difficulty_map[self.difficulty_var.get()]
@@ -411,36 +429,78 @@ class TypingTestApp:
         duration_map = {"30 sec": 30, "1 min": 60, "2 min": 120, "3 min": 180, "5 min": 300}
         self.test_duration = duration_map[self.duration_var.get()]
 
-    def reset_sample_text(self, event=None):
+    def restart_test(self, event=None):
+        """Restart the test with shuffled passages if test is ongoing"""
+        if self.timer_running:
+            # Reset all test variables
+            self.timer_running = False
+            self.start_time = None
+            self.user_input.set("")
+            self.wpm = 0
+            self.accuracy = 0
+            self.total_words_typed = 0
+            self.total_correct_chars = 0
+            self.total_chars_typed = 0
+            self.test_completed = False
+
+            # Hide stats frame
+            self.stats_frame.pack_forget()
+            self.timer_label.config(text="Ready to start!")
+
+            # Generate new shuffled sample text
+            self.reset_sample_text(shuffle=True)
+
+            # Re-enable input
+            self.input_entry.config(state='normal')
+            self.input_entry.focus()
+
+        return "break"  # Prevent default tab behavior
+
+    def reset_sample_text(self, event=None, shuffle=False):
         # Generate concatenated sample text with all available passages for the difficulty
         import random
         import string
 
         if self.difficulty == 0:  # Basic
             sample_texts = [
-                "The quick brown fox jumps over the lazy dog. This is a sample text for the typing test.",
-                "In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole.",
-                "It was the best of times, it was the worst of times, it was the age of wisdom.",
-                "To be or not to be, that is the question. Whether 'tis nobler in the mind to suffer.",
-                "All happy families are alike; each unhappy family is unhappy in its own way."
+                "The slash (/) is a versatile mark used to indicate options (and/or), represent fractions (1/2), and separate lines of poetry. It's a simple yet effective way to convey multiple choices or alternatives within a single line of text.",
+                "A virtual assistant (typically abbreviated to VA) is generally self-employed and provides professional administrative, technical, or creative assistance to clients remotely from a home office.",
+                "Typists often handle confidential documents. Treat sensitive information with the utmost care. Follow company policies regarding data security and privacy. Securely store or destroy confidential documents as instructed.",
+                "Familiarity with word processing, spreadsheet, and presentation software is essential for most typing jobs. Additionally, learning to use specialized software like transcription or dictation programs can expand your career opportunities.",
+                "A teacher's professional duties may extend beyond formal teaching. Outside of the classroom teachers may accompany students on field trips, supervise study halls, help with the organization of school functions, and serve as supervisors for extracurricular activities. In some education systems, teachers may have responsibility for student discipline.",
+                "The quick brown fox jumps over the lazy dog. This is a sample text for the typing test. Practice makes perfect when learning to type faster and more accurately.",
+                "Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! Bright vixens jump; dozy fowl quack. Sphinx of black quartz, judge my vow.",
+                "The five boxing wizards jump quickly. Jackdaws love my big sphinx of quartz. The jay, pig, fox, zebra, and my wolves quack! Blowzy night-frumps vex'd Jack Q.",
+                "Quick zephyrs blow, vexing daft Jim. Two driven jocks help fax my big quiz. Five quacking zephyrs jolt my wax bed. The lazy major was fixing Cupid's broken quiver.",
+                "Crazy Fredrick bought many very exquisite opal jewels."
             ]
-            self.sample_text = " | ".join(sample_texts)
+            if shuffle:
+                random.shuffle(sample_texts)
+            self.sample_text = " ".join(sample_texts)
 
         elif self.difficulty == 1:  # Intermediate
             # Add numbers and some special characters
             base_texts = [
-                "The quick brown fox jumps over the lazy dog 123 times. This is a sample text for the typing test!",
-                "In a hole in the ground there lived a hobbit. He had 42 buttons on his jacket.",
-                "It was the best of times, it was the worst of times - 1859 to be exact.",
-                "To be or not to be, that is the question? Whether 'tis nobler in the mind to suffer.",
-                "All happy families are alike; each unhappy family is unhappy in its own way - Tolstoy."
+                "Investing is a powerful strategy for building wealth over the long term. It involves putting your money to work in assets that have the potential to increase in value over time, such as stocks, bonds, real estate, or mutual funds. While investing comes with risks, it also offers the opportunity to earn substantial returns, outpacing inflation and growing your wealth significantly over the years. However, successful investing requires careful planning, research, and a long-term perspective. It's important to understand your risk tolerance, diversify your investments, and avoid making impulsive decisions based on short-term market fluctuations. By starting early and investing consistently, you can harness the power of compound interest, where your earnings generate more earnings, accelerating your wealth accumulation over time.",
+                "The fastest typing speed ever, 216 words per minute, was achieved by Stella Pajunas-Garnand from Chicago in 1946 in one minute on an IBM electric. As of 2005, writer Barbara Blackburn was the fastest English language typist in the world, according to The Guinness Book of World Records. Using the Dvorak Simplified Keyboard, she had maintained 150 wpm for 50 minutes, and 170 wpm for shorter periods, with a peak speed of 212 wpm. Blackburn, who failed her QWERTY typing class in high school, first encountered the Dvorak keyboard in 1938, quickly learned to achieve very high speeds, and occasionally toured giving speed-typing demonstrations during her secretarial career. She appeared on Late Night with David Letterman on January 24, 1985, but felt that Letterman made a spectacle of her. Blackburn died in April 2008. (Wikipedia)",
+                "In 2010, the US Government Accountability Office (GAO) found that 92% of typists tested could not reach the recommended minimum typing speed of 35 wpm, with an average speed of 27 wpm. The GAO concluded that this was due to a lack of emphasis on keyboarding skills in schools and recommended that keyboarding be included in the curriculum to improve students' typing proficiency.",
+                "The 54 settlers and the 96 animals arrived here about 1902. Send 86 to us, 33 to John, 36 to Richard, and 219 to Grace. The dates were May 22, 1559; May 29, 1292; and May 8, 1426. Send 86 to us, 33 to John, 36 to Richard, and 219 to Grace. My 81 years of teaching grade 12 end June 12.",
+                "It took 5 months, 4 weeks, 19 days, 16 hours, and 59 minutes. He bought 211 pounds of number 52 nails on October 31, 1923. The 69 women drove 299 miles every 31 days. The 4 men ran 16 miles 68 times in 30 events for 172 days. Mail 133 stamps and 32 letters to the 14 boys.",
+                "The temperature dropped to -5°C at 3:00 AM on 12/31/2023. The recipe calls for 2½ cups of flour, 1¼ teaspoons of salt, and ¾ cup of sugar.",
+                "The conference starts at 9:00 AM on 01/15/2024. Please RSVP by 12/31/2023 to confirm your attendance.",
+                "The password must include at least one uppercase letter (A-Z), one lowercase letter (a-z), one number (0-9), and one special character (!@#$%^&*).",
+                "The coordinates are 37.7749° N, 122.4194° W. The event is scheduled for 10:30 AM on 02/20/2024 at 123 Main St., Apt #4B.",
+                "The serial number is AB-1234-CD-5678-EF. The tracking code is ZXCVBNM1234567890QWERTYUIOP.",
+                "The meeting is set for 14:00 on 03/10/2024 in Room 204-B. Please bring your ID: XJ-9876-UV-5432."
             ]
-            self.sample_text = " | ".join(base_texts)
+            if shuffle:
+                random.shuffle(base_texts)
+            self.sample_text = " ".join(base_texts)
 
         else:  # Advanced
             # Include common special characters that are easily accessible
             advanced_texts = [
-                "The quick brown fox jumps over the lazy dog! How many @#$% can you type per minute?",
+                "The 54 settlers and the 96 animals arrived here about 1902. Send 86 to us, 33 to John, 36 to Richard, and 219 to Grace. The dates were May 22, 1559; May 29, 1292; and May 8, 1426. Send 86 to us, 33 to John, 36 to Richard, and 219 to Grace. My 81 years of teaching grade 12 end June 12.",
                 "In programming, variables like x = 42 and y = 'hello' are essential. Functions use () brackets!",
                 "Email addresses like user@example.com contain @ symbols. Phone: (555) 123-4567.",
                 "Mathematical expressions: 2 + 3 = 5, but 10 / 3 ≈ 3.33. Don't forget π ≈ 3.14159!",
@@ -455,9 +515,18 @@ class TypingTestApp:
                 "Python dictionaries: data = {\"name\": \"John\", \"age\": 30, \"city\": \"New York\"} print(data[\"name\"])",
                 "SQL queries: SELECT * FROM users WHERE name = 'John' AND age > 25 ORDER BY age DESC;",
                 "HTML tags: <div class=\"container\"><p>Hello, <strong>world</strong>!</p></div> are everywhere.",
-                "CSS properties: .box { width: 100px; height: 50px; background-color: #ff0000; border: 1px solid #000; }"
+                "CSS properties: .box { width: 100px; height: 50px; background-color: #ff0000; border: 1px solid #000; }",
+                "It took 5 months, 4 weeks, 19 days, 16 hours, and 59 minutes. He bought 211 pounds of number 52 nails on October 31, 1923. The 69 women drove 299 miles every 31 days. The 4 men ran 16 miles 68 times in 30 events for 172 days. Mail 133 stamps and 32 letters to the 14 boys.",
+                "The temperature dropped to -5°C at 3:00 AM on 12/31/2023. The recipe calls for 2½ cups of flour, 1¼ teaspoons of salt, and ¾ cup of sugar.",
+                "The conference starts at 9:00 AM on 01/15/2024. Please RSVP by 12/31/2023 to confirm your attendance.",
+                "The password must include at least one uppercase letter (A-Z), one lowercase letter (a-z), one number (0-9), and one special character (!@#$%^&*).",
+                "The coordinates are 37.7749° N, 122.4194° W. The event is scheduled for 10:30 AM on 02/20/2024 at 123 Main St., Apt #4B.",
+                "The serial number is AB-1234-CD-5678-EF. The tracking code is ZXCVBNM1234567890QWERTYUIOP.",
+                "The meeting is set for 14:00 on 03/10/2024 in Room 204-B. Please bring your ID: XJ-9876-UV-5432."
             ]
-            self.sample_text = " | ".join(advanced_texts)
+            if shuffle:
+                random.shuffle(advanced_texts)
+            self.sample_text = " ".join(advanced_texts)
 
         # Clear user input when resetting sample text
         self.user_input.set("")

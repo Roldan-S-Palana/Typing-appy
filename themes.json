@@ -1,0 +1,50 @@
+{
+  "Light": {
+    "bg": "#f8f9fa",
+    "fg": "#212529",
+    "text_bg": "#ffffff",
+    "text_fg": "#495057",
+    "button_bg": "#007bff",
+    "button_fg": "#ffffff",
+    "font": ["Segoe UI", 12],
+    "menu_bg": "#e9ecef",
+    "error_color": "#dc3545",
+    "correct_color": "#28a745"
+  },
+  "Dark": {
+    "bg": "#212529",
+    "fg": "#f8f9fa",
+    "text_bg": "#343a40",
+    "text_fg": "#e9ecef",
+    "button_bg": "#6c757d",
+    "button_fg": "#ffffff",
+    "font": ["Segoe UI", 12],
+    "menu_bg": "#495057",
+    "error_color": "#ff6b6b",
+    "correct_color": "#51cf66"
+  },
+  "Ocean": {
+    "bg": "#e3f2fd",
+    "fg": "#0d47a1",
+    "text_bg": "#ffffff",
+    "text_fg": "#1565c0",
+    "button_bg": "#1976d2",
+    "button_fg": "#ffffff",
+    "font": ["Segoe UI", 12],
+    "menu_bg": "#bbdefb",
+    "error_color": "#f44336",
+    "correct_color": "#4caf50"
+  },
+  "Forest": {
+    "bg": "#e8f5e8",
+    "fg": "#1b5e20",
+    "text_bg": "#ffffff",
+    "text_fg": "#2e7d32",
+    "button_bg": "#388e3c",
+    "button_fg": "#ffffff",
+    "font": ["Segoe UI", 12],
+    "menu_bg": "#c8e6c9",
+    "error_color": "#d32f2f",
+    "correct_color": "#388e3c"
+  }
+}
